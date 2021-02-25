@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'topTab.dart' as topTab;
 import 'package:flutter/services.dart';
-
+import 'widgetFactory.dart';
 
 
 List<DropdownMenuItem<String>> cmi_items = [
@@ -64,7 +63,7 @@ class _MuteTEState extends State<MuteTE> {
   final _formKey = GlobalKey<FormState>();
 
   Widget build(BuildContext context) {
-    return topTab.wrapForTabs(
+    return wrapBlueBorderGreyBackGroundTab(
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -108,7 +107,7 @@ class _MuteTEState extends State<MuteTE> {
           ),
           Expanded(
             flex : 4,
-            child: Container(child: Text("1")),
+            child: Container(child: Image.asset('assets/images/img.png')),
           ),
         ],
       )
