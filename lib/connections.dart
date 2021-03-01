@@ -1,54 +1,71 @@
-import 'dart:html';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
+import 'dart:convert';
 
+// variable to hold image to be displayed
+Map<String,String> failMessage = {'results' : 'fail', 'text' : 'text'};
+Future<Map<String,String>>  runStationarity(String adfSig, String johSig) async {
+  final request = http.MultipartRequest(
+    "POST",
+    Uri.parse("http://127.0.0.1:5000/"),
+  );
 
-upload() async {
-  InputElement uploadInput = FileUploadInputElement();
-  uploadInput.accept = ".csv";
-  uploadInput.multiple = false;
-  uploadInput.click();
-  uploadInput.onChange.listen((event) {
-    final files = uploadInput.files;
-
-    if (files.length == 1) {
-      final file = files[0];
-      final reader = FileReader();
-      reader.readAsDataUrl(file);
-      reader.onLoadEnd.listen((event) {
-        print('loaded: ${file.name}');
-        print('type: ${reader.result.runtimeType}');
-        print('file size = ${file.size}');
-      }
-      );
-    }
-  });
+  request.fields["runTest"] = "runTest";
+  request.fields["adfSig"] = adfSig;
+  request.fields["johSig"] = johSig;
+  var resp = await request.send();
+  String results = await resp.stream.bytesToString();
+  final decoded = json.decode(results);
+  Map<String,String> returnResults = new Map();
+  returnResults['results'] = decoded['results'];
+  returnResults['details'] =  decoded['details'];
+  returnResults['text'] =  decoded['text'];
+  return Future.value(returnResults);
 }
 
-void uploadSelectedFile(File objFile) async {
+Future<Map<String,String>> uploadSelectedFile() async {
+  PlatformFile objFile = null;
+  var result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['csv'],
+    withReadStream: true, // this will return PlatformFile object with read stream
+  );
+
+  if (result != null) {
+      objFile = result.files.single;
+  }
   //---Create http package multipart request object
   final request = http.MultipartRequest(
     "POST",
-    Uri.parse("Your API URL"),
+    Uri.parse("http://127.0.0.1:5000/"),
   );
-  //-----add other fields if needed
-  request.fields["id"] = "abc";
+  //request.fields["id"] = "abc";
 
   //-----add selected file with request
-  request.files.add(http.MultipartFile.fromBytes(
-      'ImagePaths',
-      objFile,
-      filename: 'some-file-name.jpg',
-      contentType: MediaType("file", "csv"),
-    )
-  );
+  request.files.add(new http.MultipartFile(
+      "CSVFileUpload", objFile.readStream, objFile.size,
+      filename: objFile.name));
 
-  //-------Send request
+  try {
+    var resp = await request.send();
+  }
+  on Exception {
+    failMessage['text'] = 'Unable to Connect to server';
+    return Future.value(failMessage);
+  }
   var resp = await request.send();
 
   //------Read response
-  String result = await resp.stream.bytesToString();
+  String results = await resp.stream.bytesToString();
 
   //-------Your response
-  print(result);
+  //final body = json.decode(results);
+  Map<String,String> returnResults = new Map();
+
+  final decoded = json.decode(results);
+  print(decoded['results']);
+  returnResults['results'] = decoded['results'];
+  returnResults['text'] = objFile.name;
+  return Future.value(returnResults);
+
 }

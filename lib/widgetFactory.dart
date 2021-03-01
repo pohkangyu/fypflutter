@@ -9,13 +9,14 @@ DropdownMenuItem<String> generateDropDownMenuItem(value){
 }
 
 
-DropdownButtonFormField generateDropDown(String label, List<DropdownMenuItem<String>> items, String selectedValue, Function setState){
+DropdownButtonFormField generateDropDown(String label, List<DropdownMenuItem<String>> items, String selectedValue,Function setValue, Function setState){
   return DropdownButtonFormField(
     items : items,
     value : selectedValue,
     onChanged: (selectedValue) {
       setState(() {
         selectedValue = selectedValue;
+        setValue(selectedValue);
       });
     },
     decoration: InputDecoration(

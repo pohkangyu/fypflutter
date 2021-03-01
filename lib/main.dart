@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'topTab.dart' as topTab;
 import 'bottomTab.dart'as bottomTab;
 
+//main function to run the app.
 void main() {
   runApp(MyApp());
 }
 
-//Simply returns Widget and add a title
+//App returns and render a stateless widget.
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//Simple return a column with 2x tab. Look into bottomTab.dart and topTab.dart for more details.
+//Only stateless widget returned. It consist of a upper tab and a lower tab.
 class HomePage extends StatelessWidget {
   var title;
   HomePage(String inputTitle){

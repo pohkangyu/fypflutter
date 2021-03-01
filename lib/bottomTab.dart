@@ -68,7 +68,7 @@ class _MuteTEState extends State<MuteTE> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            flex : 1,
+            flex : 2,
             child: Form(
               key: _formKey,
               child: Column(
@@ -89,15 +89,25 @@ class _MuteTEState extends State<MuteTE> {
                   Expanded(
                     child: Container(
                       child:
-                      ListView(
-                        children: <Widget>[
-                          generateChoice(setState, cmi_items, cmi_item, "Estimator to be used for CMI calculation", 'cmi_estimator'),
-                          generateIntegerInput("max_lag_source", "Maximum temporal search depth for candidates in the sources' past in samples", "5"),
-                          generateIntegerInput("min_lag_source", "Minimum temporal search depth for candidates in the sources' past in samples", "1"),
-                          generateIntegerInput("max_lag_target", "Maximum temporal search depth for candidates in the target's past in sample, default=same as max_lag_sources", "5"),
-                          generateIntegerInput("tau_sources", "Spacing between candidates in the sources' past in samples", "1"),
-                          generateIntegerInput("tau_target", "Spacing between candidates in the target's past in sample, default = 1", "1"),
-                        ],
+
+                      Container(
+                        child: ListView(
+                          children: <Widget>[
+                            generateChoice(setState, cmi_items, cmi_item, "Estimator to be used for CMI calculation", 'cmi_estimator'),
+                            generateIntegerInput("max_lag_source", "Maximum temporal search depth for candidates in the sources' past in samples", "5"),
+                            generateIntegerInput("min_lag_source", "Minimum temporal search depth for candidates in the sources' past in samples", "1"),
+                            generateIntegerInput("max_lag_target", "Maximum temporal search depth for candidates in the target's past in sample, default=same as max_lag_sources", "5"),
+                            generateIntegerInput("tau_sources", "Spacing between candidates in the sources' past in samples", "1"),
+                            generateIntegerInput("tau_target", "Spacing between candidates in the target's past in sample, default = 1", "1"),
+                            generateIntegerInput("n_perm_max_stat", "Number of permutations for Max Stat", "1"),
+                            generateIntegerInput("n_perm_min_stat", "Number of permutations for Min Stat", "1"),
+                            generateIntegerInput("n_perm_omnibus", "Number of permutations for Omnibus", "1"),
+                            generateIntegerInput("n_perm_max_seq", "Number of permutations for Max Sequence", "1"),
+                            generateIntegerInput("alpha_max_stats", "Critical alpha level for statistical significance", "1"),
+                            generateIntegerInput("alpha_min_stats", "Critical alpha level for statistical significance", "1"),
+                            generateIntegerInput("alpha_omnibus", "Critical alpha level for statistical significance", "1"),
+                          ],
+                        ),
                       )
                   ),
                   )
