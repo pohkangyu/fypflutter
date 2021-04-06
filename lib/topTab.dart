@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'widgetFactory.dart';
 import 'connections.dart';
-List<String> tabsName = ["Upload Data", "Upload Settings", "Stationarity Test", "Discretize Values"];
+List<String> tabsName = ["Upload Data", "First Difference", "Upload Settings", "Stationarity Test", "Discretize Values"];
 String pathdirectoryCSV = "Select Path To Upload";
 String pathdirectorySettingsUpload = "Select Path To Upload";
 String pathdirectorySettingsDownload = "Download File";
@@ -48,6 +48,7 @@ class _TopTabState extends State<TopTab> {
         body: TabBarView(
           children: [
             UploadDataTab(),
+            firstDifference(),
             UploadSettingsTabState(),
             stationarityTest(),
             DiscretizeValues(),
@@ -64,38 +65,60 @@ class DiscretizeValues extends StatefulWidget {
 }
 
 class _DiscretizeValuesState extends State<DiscretizeValues> {
-  void toggle(){
+  void toggle() async {
 
+      Map<String,String> results = await togglediscretize();
+      //if request pass
+      if (results['results'] == "pass"){
+        final snackBar = SnackBar(content: Text('Successfully Toggled Discretize!'));
+        Scaffold.of(context).showSnackBar(snackBar);
+      }
+      //if result fail
+      else{
+        final snackBar = SnackBar(content: Text(results['details']));
+        Scaffold.of(context).showSnackBar(snackBar);
+      }
   }
   @override
   Widget build(BuildContext context) {
     return wrapBlueBorderGreyBackGroundTab(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              flex : 1,
-              child : Align(
-                alignment: Alignment.centerRight,
-                child: generateOutlinedButton(discretizedState, setState, toggle),
-              ),
-            ),
-            Flexible(
-                flex : 2,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(6,0,0,0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: FractionallySizedBox(
-                      widthFactor: 0.7,
-                      child: SingleChildScrollView(
-                          child: Text('$discretizedState')
-                      ),
-                    ),
-                  ),
-                )
-            ),
-          ],
+        Center(
+          child: Container(
+            child: generateOutlinedButton("Discretize", setState, toggle),
+          ),
+        )
+    );
+  }
+}
+
+class firstDifference extends StatefulWidget {
+  @override
+  _firstDifferenceState createState() => _firstDifferenceState();
+}
+
+class _firstDifferenceState extends State<firstDifference> {
+
+  _toggledifference() async {
+    Map<String,String> results = await toggledifference();
+    //if request pass
+    if (results['results'] == "pass"){
+      final snackBar = SnackBar(content: Text('Successfully Toggled First Difference!'));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+    //if result fail
+    else{
+      final snackBar = SnackBar(content: Text(results['details']));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return wrapBlueBorderGreyBackGroundTab(
+        Center(
+          child: Container(
+            child: generateOutlinedButton("Toggle first order difference", setState, _toggledifference),
+          ),
         )
     );
   }
@@ -110,14 +133,11 @@ class stationarityTest extends StatefulWidget {
 class _stationarityTestState extends State<stationarityTest> {
 
   void _toggleStationaryTest() async {
-    Map<String,String> value = await runStationarity(adfSig, johSig);
-    print(value['results']);
-    if (value['results'] == "True"){
-      setState(() {
-        stationaryState  = value["details"];
-      });
-    }
-    final snackBar = SnackBar(content: Text(value['text']));
+    Map<String,String> results = await runStationarity(adfSig, johSig);
+    setState(() {
+      stationaryState  = results["details"];
+    });
+    final snackBar = SnackBar(content: Text("Results of Stationary Test Recieved"));
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
@@ -231,20 +251,21 @@ class _uploadDataTabState extends State<UploadDataTab> {
   //name to get the path
   //results to get pass or failed uploading
   //setstate to init the rendering of the updated button when pass
+
   void _toggleUpload() async {
 
-    Map<String,String> map = await uploadSelectedFile();
-    if (map['results'] == "Pass"){
-      pathdirectoryCSV = map["name"];
-
+    Map<String,String> results = await uploadSelectedFile();
+    //if request pass
+    if (results['results'] == "pass"){
       setState(() {
-        pathdirectoryCSV = map["text"];
+        pathdirectoryCSV = "Uploaded File Successfully";
       });
-      final snackBar = SnackBar(content: Text('Successfully Uploaded!'));
+      final snackBar = SnackBar(content: Text(pathdirectoryCSV));
       Scaffold.of(context).showSnackBar(snackBar);
     }
+    //if result fail
     else{
-      final snackBar = SnackBar(content: Text(map['text']));
+      final snackBar = SnackBar(content: Text(results['details']));
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
@@ -252,11 +273,41 @@ class _uploadDataTabState extends State<UploadDataTab> {
   @override
   Widget build(BuildContext context) {
     return wrapBlueBorderGreyBackGroundTab(
-        Center(
-          child: Container(
-            child: generateOutlinedButton(pathdirectoryCSV, setState, _toggleUpload),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              flex : 1,
+              child : Align(
+                alignment: Alignment.centerRight,
+                child: generateOutlinedButton("Path", setState, _toggleUpload),
+              ),
+            ),
+            Flexible(
+                flex : 2,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(6,0,0,0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.7,
+                      child: SingleChildScrollView(
+                          child: Text('$pathdirectoryCSV')
+                      ),
+                    ),
+                  ),
+                )
+            ),
+          ],
         )
+
+        // Center(
+        //   child: Container(
+        //     child: generateOutlinedButton(pathdirectoryCSV, setState, _toggleUpload),
+        //   ),
+        // )
     );
   }
 }
+
+
