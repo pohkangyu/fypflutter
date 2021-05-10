@@ -28,8 +28,6 @@ Future<Map<String,String>> toggleTE(Map<String, String> input) async {
   }
   return Future.value(returnResults);
 }
-
-
 //function to toggle difference
 Future<Map<String,String>> togglediscretize() async {
   Map<String,String> returnResults = new Map();
@@ -51,6 +49,7 @@ Future<Map<String,String>> togglediscretize() async {
     returnResults['results'] = 'fail';
     returnResults['details'] = 'Unable to Connect to server';
   }
+
   return Future.value(returnResults);
 }
 
