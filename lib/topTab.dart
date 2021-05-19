@@ -1,7 +1,13 @@
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'bottomTab.dart';
 import 'widgetFactory.dart';
 import 'connections.dart';
+import 'dart:html' as html;
+import 'bottomTab.dart' as bottomTab;
+
 List<String> tabsName = ["Upload Data", "First Difference", "Upload Settings", "Stationarity Test", "Discretize Values"];
 String pathdirectoryCSV = "Select Path To Upload";
 String pathdirectorySettingsUpload = "Select Path To Upload";
@@ -210,10 +216,38 @@ class UploadSettingsTabState extends StatefulWidget {
 // ignore: camel_case_types
 class _uploadSettingsTabState extends State<UploadSettingsTabState> {
   void _toggleUpload() async {
-    pathdirectorySettingsUpload = "Upload";
+    Map<String,String> results = await uploadSettingsFile("uploadSettings");
+    //if request pass
+    if (results['results'] == "pass"){
+      setState(() {
+        pathdirectoryCSV = "Uploaded File Successfully";
+      });
+      final snackBar = SnackBar(content: Text(pathdirectoryCSV));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+    //if result fail
+    else{
+      final snackBar = SnackBar(content: Text(results['details']));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
   }
+
   void _toggleDownload() async {
-    pathdirectorySettingsDownload = "Download";
+    String csv = await getSettings();
+    // prepare
+    final bytes = utf8.encode(csv);
+    final blob = html.Blob([bytes]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.document.createElement('a') as html.AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = 'settings.csv';
+    html.document.body.children.add(anchor);
+    // download
+    anchor.click();
+    // cleanup
+    html.document.body.children.remove(anchor);
+    html.Url.revokeObjectUrl(url);
   }
   @override
   Widget build(BuildContext context) {
@@ -254,7 +288,7 @@ class _uploadDataTabState extends State<UploadDataTab> {
 
   void _toggleUpload() async {
 
-    Map<String,String> results = await uploadSelectedFile();
+    Map<String,String> results = await uploadSelectedFile("uploadCSV");
     //if request pass
     if (results['results'] == "pass"){
       setState(() {

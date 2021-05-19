@@ -1,6 +1,8 @@
+import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'widgetFactory.dart';
 import 'connections.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +38,26 @@ List<DropdownMenuItem<String>> cmi_items = [
 ];
 String cmi_item = "JidtGaussianCMI";
 
+Future<String> getSettings() async {
+  List<List<String>> inputTE = [
+    ['cmi_estimator', cmi_item],
+    ["max_lag_sources", max_lag_sourceController.text],
+    ["min_lag_sources", min_lag_sourceController.text],
+    ["max_lag_target", max_lag_targetController.text],
+    ["tau_sources", tau_sourcesController.text],
+    ["tau_target", tau_targetController.text],
+    ["n_perm_max_stat", n_perm_max_statController.text],
+    ["n_perm_min_stat", n_perm_min_statController.text],
+    ["n_perm_omnibus", n_perm_omnibusController.text],
+    ["n_perm_max_seq", n_perm_max_seqController.text],
+    ["alpha_max_stats", alpha_max_statsController.text],
+    ["alpha_min_stats", alpha_min_statsController.text],
+    ["alpha_omnibus", alpha_omnibusController.text],
+  ];
+  String csv = const ListToCsvConverter().convert(inputTE);
+  return csv;
+}
+
 
 class BottomTab extends StatefulWidget {
   @override
@@ -44,9 +66,6 @@ class BottomTab extends StatefulWidget {
 
 class _BottomTab extends State<BottomTab> {
   List<String> tabsName = ["MultiVariate Time Series"];
-
-
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
